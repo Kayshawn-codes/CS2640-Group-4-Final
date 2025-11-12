@@ -7,3 +7,30 @@
    la $a0, %str
    syscall
 .end_macro
+
+.macro readStr(%returnAddress, %size) #Should be called with a storage location for input and a size
+   #Recieve user string
+   li $v0, 8
+   la $a0, %returnAddress
+   li $a1, %size
+   syscall
+   
+   
+.end_macro
+
+.macro readStrW(%returnAddress, %size) #Read string but give a warning for string size:
+   .data
+   part1: .asciiz "(Max characters: "
+   part2: .asciiz ")\n"
+   
+   .text
+   #Indicate the maximum characters the user can input
+   printStr(part1)
+   li $v0, 1
+   li $a0, %size
+   syscall
+   printStr(part2)
+   
+   readStr(%returnAddress, %size)
+   
+.end_macro

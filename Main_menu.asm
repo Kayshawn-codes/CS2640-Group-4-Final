@@ -1,7 +1,6 @@
 #CS 2640.02 Group 4 11/12/2025
 
 #Functions for the main menu of the application
-.include "Basic_Functions.asm"
 
 .macro signInMenu(%response)
    .data
@@ -34,6 +33,51 @@
    exit: #If input was valid store it in response and exit
    sb $v0, %response
 .end_macro
+
+.macro signUpMenu
+   .data
+   userNamePrompt: .asciiz "Please enter a desired username: \n"
+   username: .space 25
+   passwordPrompt: .asciiz "Please enter a desired password: \n"
+   password: .space 25
+   firstNamePrompt: .asciiz "Please enter your first name: \n"
+   firstName: .space 50
+   lastNamePrompt: .asciiz "Please enter your last name: \n"
+   lastName: .space 50
+   .text 
+   #Ask the user for each piece of information, then store it in the appropriate space
+   printStr(userNamePrompt)
+   readStr(username, 25)
+   printStr(passwordPrompt)
+   readStr(password, 25)
+   printStr(firstNamePrompt)
+   readStr(firstName, 50)
+   printStr(lastNamePrompt)
+   readStr(lastName, 50)
+   
+   #Testing address placement
+   #printStr(username)
+   #printStr(password)
+   #printStr(firstName)
+   #printStr(lastName)
+.end_macro
+
+.macro login
+   .data
+   userPrompt: .asciiz "Please enter your username: "
+   username: .space 25
+   passPrompt: .asciiz "Please enter your password: "
+   password: .space 25
+   
+   .text
+   #Get the user's username and password
+   printStr(userPrompt)
+   readStr(username, 25)
+   printStr(passPrompt)
+   readStr(password)
+   
+.end_macro
 .data
 spacer: .asciiz "----------------------------------------------------"
+file: .asciiz "User_Data.txt"
 .text
