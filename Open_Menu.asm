@@ -2,7 +2,7 @@
 
 #Functions for the main menu of the application
 
-.macro signInMenu(%response)
+.macro openMenu(%response)
    .data
    header: .asciiz "-------------------------Main Menu-------------------------\n"
    opening: .asciiz "Welcome to *Name Pending* banking app.\n"
@@ -37,23 +37,23 @@
 .macro signUpMenu
    .data
    userNamePrompt: .asciiz "Please enter a desired username: \n"
-   username: .space 25
+   username: .space 26
    passwordPrompt: .asciiz "Please enter a desired password: \n"
-   password: .space 25
+   password: .space 26
    firstNamePrompt: .asciiz "Please enter your first name: \n"
-   firstName: .space 50
+   firstName: .space 51
    lastNamePrompt: .asciiz "Please enter your last name: \n"
-   lastName: .space 50
+   lastName: .space 51
    .text 
    #Ask the user for each piece of information, then store it in the appropriate space
    printStr(userNamePrompt)
-   readStr(username, 25)
+   readStr(username, 26)
    printStr(passwordPrompt)
-   readStr(password, 25)
+   readStr(password, 26)
    printStr(firstNamePrompt)
-   readStr(firstName, 50)
+   readStr(firstName, 51)
    printStr(lastNamePrompt)
-   readStr(lastName, 50)
+   readStr(lastName, 51)
    
    #Testing address placement
    #printStr(username)
@@ -62,22 +62,19 @@
    #printStr(lastName)
 .end_macro
 
-.macro login
+.macro loginMenu(%user_number) #memory address for a user to login. Zero if failed or invalid.
    .data
    userPrompt: .asciiz "Please enter your username: "
-   username: .space 25
+   username: .space 26
    passPrompt: .asciiz "Please enter your password: "
-   password: .space 25
+   password: .space 26
    
    .text
    #Get the user's username and password
    printStr(userPrompt)
-   readStr(username, 25)
+   readStr(username, 26)
    printStr(passPrompt)
-   readStr(password)
+   readStr(password, 26)
    
 .end_macro
-.data
-spacer: .asciiz "----------------------------------------------------"
-file: .asciiz "User_Data.txt"
-.text
+

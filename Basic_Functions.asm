@@ -34,3 +34,12 @@
    readStr(%returnAddress, %size)
    
 .end_macro
+.macro printInt(%int, %offset) #Register and immediate offset
+   li $v0, 1
+   move $a0, %int
+   addi $a0, $a0, %offset
+   syscall
+.end_macro
+.data
+spacer: .asciiz "----------------------------------------------------"
+linebreak: .asciiz "\n"
