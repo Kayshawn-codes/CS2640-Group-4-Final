@@ -1,13 +1,14 @@
 
 .macro main_menu(%userNumber)
    .data 
-      userName: .space 26
-      firstName: .space 51
-      lastName: .space 51
-      accountsDisplay: .asciiz "---Open Accounts---"
-      menuOptions1: .asciiz "\n What would you like to do?\n"
-      menuOptions2: .asciiz"1. Deposit\n2. Withdraw.\n3.Freeze and account.\n4.Change user access.\n5. Exit
-      errMsg: .asciiz "Invalid input. Please try again"
+      userName:   .space 26
+      firstName:  .space 51
+      lastName:   .space 51
+      accountsDisplay:  .asciiz "---Open Accounts---"
+      menuOptions1:     .asciiz "\n What would you like to do?\n"
+      menuOptions2:     .asciiz"1. Deposit\n2. Withdraw.\n3.Freeze and account.\n4.Change user access.\n5. Exit"
+      errMsg:           .asciiz "Invalid input. Please try again"
+
    .text
    menu:
       greeting(firstName)
@@ -41,15 +42,14 @@
 
 .macro greeting(%name)
    .data
-      greeting1: "Hello, "
-      greeting2: "!"
+      greeting1: .asciiz "Hello, "
+      greeting2: .asciiz "!"
    .text
       printStr(greeting1)
       li $v0, 4
       la $a0, %name
       syscall
-      printStr(greeting2)
-      
+      printStr(greeting2)      
 .end_macro
 
 .macro showAccounts(%userNumber)
