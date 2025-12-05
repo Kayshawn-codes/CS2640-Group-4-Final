@@ -14,8 +14,6 @@
    la $a0, %returnAddress
    li $a1, %size
    syscall
-   
-   
 .end_macro
 
 .macro readStrW(%returnAddress, %size) #Read string but give a warning for string size:
@@ -31,9 +29,9 @@
    syscall
    printStr(part2)
    
-   readStr(%returnAddress, %size)
-   
+   readStr(%returnAddress, %size)   
 .end_macro
+
 .macro printInt(%int, %offset) #Register and immediate offset
    li $v0, 1
    move $a0, %int
@@ -43,3 +41,15 @@
 .data
 spacer: .asciiz "----------------------------------------------------"
 linebreak: .asciiz "\n"
+
+.macro loadUserData
+.end_macro
+
+.macro saveUserData
+.end_macro
+
+.macro searchUser
+.end_macro
+
+.macro updateAccountBalance
+.end_macro
