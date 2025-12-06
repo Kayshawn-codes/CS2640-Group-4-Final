@@ -1,4 +1,6 @@
-#CS 2640.02 11/12/25
+#CS 2640.02 
+#Group 4: Kayshawn W., Jacob L., Jahnvi L., Samuel O.
+#12/07/25
 
 #Basic functions that will be used accross multiple files
 
@@ -42,14 +44,30 @@
 spacer: .asciiz "----------------------------------------------------"
 linebreak: .asciiz "\n"
 
-.macro loadUserData
+.macro openFile(%flag)
+	li $v0, 13
+	la $a0, fileName
+	li $a1, %flag
+	li $a2, 0
+	syscall
+	move $s0, $v0 #Save file descriptor
 .end_macro
 
-.macro saveUserData
+.macro appendFile(%buffer, %reg)
+   li $v0, 15
+	move $a0, $s0
+	la $a1, %buffer
+	move $a2, %reg
+	syscall
 .end_macro
 
-.macro searchUser
+.macro closeFile
+	li $v0, 16
+	move $a0, $s0
+	syscall
 .end_macro
 
-.macro updateAccountBalance
+.macro generateUserNumber
 .end_macro
+
+

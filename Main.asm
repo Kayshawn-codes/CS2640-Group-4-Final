@@ -1,4 +1,6 @@
-#CS 2640.02 Group 4 11/12/25
+#CS 2640.02 
+#Group 4: Kayshawn W., Jacob L., Jahnvi L., Samuel O.
+#12/07/25
 
 #This application is a banking app that supports basic functions such as deposits and withdrawls
 #Users can sign up as well as log in to accounts. Additonal features include freezing
@@ -8,13 +10,13 @@
 .include "User_Menu.asm"
 
 .data
-fileName: .asciiz "User_Data.txt"
-loginFail: .asciiz "User and Password not found."
-signInResponse: .space 4
+fileName:   .asciiz "User_Data.txt"
+loginFail:  .asciiz "User and Password not found."
+signInResponse:   .space 4
 userNumber: .space 4
+
 .text
 main:
-	
    openMenu(signInResponse) #1. login, 2. sign up, 3. exit
    main_menu(userNumber)
    lb $s0, signInResponse
@@ -29,7 +31,7 @@ login:
    lb $s0, userNumber
    bgt $s0, $zero, user_menu
    loginFailure:
-   printStr(loginFail)
+   printStr(loginFail) 
    j main
 user_menu: #If user successfully logs in 
    main_menu(userNumber)

@@ -1,4 +1,6 @@
-#CS 2640.02 Group 4 11/12/2025
+#CS 2640.02 
+#Group 4: Kayshawn W., Jacob L., Jahnvi L., Samuel O.
+#12/07/25
 
 #Functions for the main menu of the application
 
@@ -44,6 +46,7 @@
    firstName: .space 51
    lastNamePrompt: .asciiz "Please enter your last name: \n"
    lastName: .space 51
+
    .text 
    #Ask the user for each piece of information, then store it in the appropriate space
    printStr(userNamePrompt)
@@ -60,6 +63,45 @@
    #printStr(password)
    #printStr(firstName)
    #printStr(lastName)
+
+   .macro saveUserData
+      .data
+      buffer:  .space 1028
+
+      removeNewline:
+	   lb $t1, 0($t0)
+	   beq $t1, 0, storeUserData
+	   li $t2, 10
+	   beq $t1, $t2, setZero
+	   addi $t0, $t0, 1
+	   j removeNewline
+
+      setZero:
+	      sb $zero, 0($t0)
+
+storeUserData:
+
+      .text
+      openFile(9)
+
+	   #Load values
+	   la $t0, buffer
+	   li $t1, 0
+	
+         loop:
+	      lb $t2, 0($t0)
+	      beq $t2, $zero, appendToFile
+	      addi $t0, $t0, 1
+	      addi $t1, $t1, 1
+         j loop	
+
+         appendToFile:
+	      #Append to the end of the file
+	      appendFile($t0, $t1)
+
+      closeFile	
+.end_macro
+
 .end_macro
 
 .macro loginMenu(%user_number) #memory address for a user to login. Zero if failed or invalid.

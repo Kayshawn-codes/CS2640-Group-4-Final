@@ -1,13 +1,17 @@
+#CS 2640.02 
+#Group 4: Kayshawn W., Jacob L., Jahnvi L., Samuel O.
+#12/07/25
 
 .macro main_menu(%userNumber)
    .data 
       userName:   .space 26
+      passWord:   .space 12
       firstName:  .space 51
       lastName:   .space 51
       accountsDisplay:  .asciiz "---Open Accounts---"
-      menuOptions1:     .asciiz "\n What would you like to do?\n"
-      menuOptions2:     .asciiz"1. Deposit\n2. Withdraw.\n3.Freeze and account.\n4.Change user access.\n5. Exit"
-      errMsg:           .asciiz "Invalid input. Please try again"
+      menuOptions1:  .asciiz "\n What would you like to do?\n"
+      menuOptions2:  .asciiz "1. Deposit\n2. Withdraw.\n3.Freeze and account.\n4.Change user access.\n5. Exit"
+      errMsg:  .asciiz "Invalid input. Please try again"
 
    .text
    menu:
@@ -71,7 +75,7 @@
          #findAccount(%userNumber, $t0, hasMore) #Should print out the account info and update hasMore
                                                 #if there are no more accounts
          lw $t2, hasMore
-         beq $t2, 0, loop
+         bne $t2, 0, loop 
 .end_macro
 
 .macro deposit(%userNumber)
