@@ -74,7 +74,14 @@
 
    #Check Username Availability
    openFile(0, fileDescriptor)
-   readFile(buffer, 50000, $s1, fileDescriptor)
+   readFile(buffer2, 50000, $s1, fileDescriptor)
+   
+   #Calculate end of valid data in buffer
+   la $s5, buffer2
+   add $s1, $s5, $s1  # $s1 = buffer start + bytes read
+   
+   #If no data was read, set end to buffer start
+   beq $s1, $s5, generateUserNumber 
 
    #Debug code to check if file descriptor makes sense
    printStr(debug)
@@ -89,18 +96,25 @@
 
    .text
    #Initialize file parsing variables
-   la $t0, buffer
+   la $t0, buffer2
    lb $t1, ($t0)
    la $t2, ampersand
    lb $t3, ($t2)
-   la $t8, newline
-   lb $t5, ($t8)
+   la $s2, newline
+   lb $s3, ($s2)
    li $t9, 0		#ampersand counter
 
 
    findAmpersand:
    bge $t0, $s1, generateUserNumber
+   
+   # Check bounds before accessing memory
+   la $s6, buffer2
+   addi $s6, $s6, 50000  # Calculate buffer end
+   bge $t0, $s6, generateUserNumber
+   
    lb $t1, ($t0)
+   beq $t1, 0, generateUserNumber   #Check for null terminator
    lb $t3, ($t2) 
    beq $t1, $t3, foundAmpersand     
    addi $t0, $t0, 1  
@@ -115,8 +129,11 @@
    addi $t0, $t0, 1
    
    skipLinesLoop:
+   # Check bounds before accessing memory
+   bge $t0, $s1, generateUserNumber
+   
    lb $t4, ($t0)
-   lb $t5, ($t8)
+   lb $t5, ($s2)
    beq $t4, $t5, foundNewline  
    addi $t0, $t0, 1
    j skipLinesLoop
@@ -126,27 +143,22 @@
    addi $t0, $t0, 1
    
    #Check if 4 lines have been skipped
-   beq $t3, 4, usernameLine
+   beq $t3, 4, compareUsername
    
    j skipLines
    
-   #Navigate to start of username in file
-   usernameLine:
-   beq $t0, $t8, compareUsername
-   addi $t0, $t0, 1
-   
-   j usernameLine
-   
    #Compare input username with file username character by character
    compareUsername:
+   # Check bounds before accessing buffer memory
+   bge $t0, $s1, nextAmpersand
+   
    la $t6, username
-
    lb $t7, ($t6)
    lb $t8, ($t0)
    
-   #Check for end of input username end
+   #Check for end of input username (null terminator or newline)
    beq $t7, 0, usernameEnd
-   beq $t7, $t9, usernameEnd
+   beq $t7, 10, usernameEnd #Check for newline char
    bne $t7, $t8, nextAmpersand
    
    addi $t6, $t6, 1
@@ -154,8 +166,9 @@
    j compareUsername
    
    usernameEnd:
-   #Check for file username end
-   beq $t8, $t9, duplicateUsernameFound  
+   #Check for file username end(should be newline char)
+   lb $s4, ($s2)
+   beq $t8, $s4, duplicateUsernameFound  
    j nextAmpersand
    
    duplicateUsernameFound:
@@ -164,24 +177,26 @@
    
    #Navigate to next user section in file
    nextAmpersand: 
+   # Check bounds before accessing memory
+   bge $t0, $s1, generateUserNumber
+   
    lb $t7, ($t0)
    beq $t7, 0, generateUserNumber
-   lb $t8, ampersand
+   lb $t8, ($t2)  # Load ampersand value from correct address
    bne $t7, $t8, gotonextAmpersand
    
-   
    addi $t0, $t0, 1
+   bge $t0, $s1, generateUserNumber  # Check bounds after increment
    lb $t7, ($t0)
    beq $t7, $t8, findAmpersand
    
    gotonextAmpersand:
    addi $t0, $t0, 1      
    j nextAmpersand
-   
-   closeFile(fileDescriptor)
-   
+
    #Generate unique user and account numbers
    generateUserNumber:
+   closeFile(fileDescriptor)
       .data
       userNumberValue:	.word 1
       
@@ -278,5 +293,6 @@
    readStr(password, 26)
    
 .end_macro
+
 
 

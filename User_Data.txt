@@ -1,1 +1,50 @@
 Append data
+
+&&
+User No. 0
+First Name: Luna
+
+Last Name: Lovegood
+
+Username: lovegood
+
+Password: pygmypuff
+
+^^
+Account No. 0
+Balance: 0
+Account Frozen: 
+N
+Access: 0
+&&
+User No. 0
+First Name: Rize
+
+Last Name: Kamishiro
+
+Username: kamishiro@cornerstone
+
+Password: dragon
+
+^^
+Account No. 0
+Balance: 0
+Account Frozen: 
+N
+Access: 0
+&&
+User No. 0
+First Name: Su
+
+Last Name: Won
+
+Username: won@cornerstone
+
+Password: hayona
+
+^^
+Account No. 0
+Balance: 0
+Account Frozen: 
+N
+Access: 0
