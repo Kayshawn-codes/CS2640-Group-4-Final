@@ -4,26 +4,33 @@
 
 #Basic functions that will be used across multiple files
 
+#String I/O macros
+# printStr: Display string to console
+# %str - memory location of null-terminated string
 .macro printStr(%str)
    li $v0, 4
    la $a0, %str
    syscall
 .end_macro
 
-.macro readStr(%returnAddress, %size) #Should be called with a storage location for input and a size
-   #Recieve user string
+# readStr: Read user input string
+# %returnAddress - memory location to store input string
+# %size - integer value, maximum characters to read
+.macro readStr(%returnAddress, %size)
    li $v0, 8
    la $a0, %returnAddress
    li $a1, %size
    syscall
 .end_macro
 
-.macro readStrW(%returnAddress, %size) #Read string but give a warning for string size:
+# readStrW: Read user input with size warning display
+# %returnAddress - memory location to store input string
+# %size - integer value, maximum characters (displayed to user)
+.macro readStrW(%returnAddress, %size)
 .data
    part1: .asciiz "(Max characters: "
    part2: .asciiz ")\n"
 .text
-   #Indicate the maximum characters the user can input
    printStr(part1)
    li $v0, 1
    li $a0, %size
@@ -33,14 +40,22 @@
    readStr(%returnAddress, %size)   
 .end_macro
 
-.macro printInt(%int, %offset) #Register and immediate offset
+#Integer I/O macros
+# printInt: Display integer to console
+# %int - register containing integer value
+# %offset - immediate integer value to add to %int
+.macro printInt(%int, %offset)
    li $v0, 1
    move $a0, %int
    addi $a0, $a0, %offset
    syscall
 .end_macro
 
-.macro openFile(%flag, %fd) #immediate value containing open flag, memorry address for the file descriptor
+.macro openFile(%flag, %fd)
+#File operation macros
+# openFile: Open file and save descriptor to $s0
+# %flag - integer value (0=read, 1=write, 9=append)
+.macro openFile(%flag, %fd)
    li $v0, 13
    la $a0, fileName
    li $a1, %flag
@@ -49,8 +64,12 @@
    sw $v0, %fd #Save file descriptor
 .end_macro
 
-.macro readFile(%buffer, %size, %bytesRead, %fd) #memory address of buffer, immediate size value, \
-					   #register to hold num bytes read, memory address holding file descriptor
+
+# readFile: Read data from open file
+# %buffer - memory location to store file content
+# %size - integer value, maximum bytes to read
+# %reg - register to store number of bytes actually read
+.macro readFile(%buffer, %size, %bytesRead, %fd) 
    li $v0, 14
    lw $a0, %fd
    la $a1, %buffer
@@ -59,6 +78,10 @@
    move %bytesRead, $v0
 .end_macro
 
+
+# appendFile: Write data to open file
+# %buffer - memory location of data to write
+# %reg - register containing number of bytes to write
 .macro appendFile(%buffer, %reg, %fd)
    li $v0, 15
    lw $a0, %fd
@@ -67,12 +90,17 @@
    syscall
 .end_macro
 
+# closeFile: Close currently open file (uses $s0 descriptor)
+# No parameters required
 .macro closeFile(%fd)
    li $v0, 16
    move $a0, $s0
    syscall
 .end_macro
 
+#Data conversion and writing macros
+# writeStringToFile: Calculate string length and write to file
+# %data - memory location of null-terminated string
 .macro writeStringToFile(%data, %fd)
    la $t0, %data
    li $t1, 0
@@ -88,6 +116,9 @@
    appendFile(%data, $t1, %fd)
 .end_macro
 
+# writeIntToFile: Convert integer to string and write to file
+# %intValue - memory location containing integer value
+# %intBuffer - memory location to store converted string (6+ bytes)
 .macro writeIntToFile(%intValue, %intBuffer, %fd)
    lw $t0, %intValue
    la $t1, %intBuffer 
