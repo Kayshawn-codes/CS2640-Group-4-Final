@@ -11,6 +11,7 @@
 
 .data
 fileName:   .asciiz "User_Data.txt"
+buffer: .space 50000
 loginFail:  .asciiz "User and Password not found."
 signInResponse:   .space 4
 userNumber: .space 4

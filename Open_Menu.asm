@@ -21,7 +21,7 @@
    printStr(option1)
    printStr(option2)
    printStr(option3)
-   recieve: #tTake their response
+   recieve: #Take their response
    li $v0, 5
    syscall
    
@@ -64,44 +64,169 @@
    #printStr(firstName)
    #printStr(lastName)
 
-   .macro saveUserData
+   #Check Username Availability
+   openFile(0)
+   readFile(buffer, 50000, $s1)
+
+   .data
+   ampersand:  .byte 38
+   newline: .byte 10
+   duplicateUsername: .asciiz "\nThis username is already in use. Please select an alternative option."
+
+   .text
+   la $t0, buffer
+   lb $t1, ($t0)
+   li $t9, 0		#ampersand counter
+   la $t8, newline
+
+   findAmpersand:
+   bge $t0, $s1, generateUserNumber
+   lb $t1, ($t0)
+   lb $t3, ampersand 
+   beq $t1, $t3, foundAmpersand     
+   addi $t0, $t0, 1  
+   j findAmpersand
+   
+   foundAmpersand:
+   addi $t9, $t9, 1
+   
+   skipLines:
+   li $t3, 0 	#newline counter
+   addi $t0, $t0, 1
+   
+   skipLinesLoop:
+   lb $t4, ($t0)
+   lb $t5, newline 
+   beq $t4, $t5, foundNewline  
+   addi $t0, $t0, 1
+   j skipLinesLoop
+   
+   foundNewline:
+   addi $t3, $t3, 1
+   addi $t0, $t0, 1
+   
+   #Check if 4 lines have been skipped
+   beq $t3, 4, usernameLine
+   
+   j skipLines
+   
+   usernameLine:
+   beq $t0, $t8, compareUsername
+   addi $t0, $t0, 1
+   
+   j usernameLine
+   
+   compareUsername:
+   la $t6, username
+   lb $t7, ($t6)
+   lb $t8, ($t0)
+   
+   #Check for end of input username end
+   beq $t7, 0, usernameEnd
+   beq $t7, 10, usernameEnd
+   bne $t7, $t8, nextAmpersand
+   
+   addi $t6, $t6, 1
+   addi $t0, $t0, 1   
+   j compareUsername
+   
+   usernameEnd:
+   #Check for file username end
+   beq $t8, 10, duplicateUsernameFound  
+   j nextAmpersand
+   
+   duplicateUsernameFound:
+   printStr(duplicateUsername)
+   signUpMenu 
+   
+   nextAmpersand: 
+   lb $t7, ($t0)
+   beq $t7, 0, generateUserNumber
+   lb $t8, ampersand
+   bne $t7, $t8, gotonextAmpersand
+   
+   
+   addi $t0, $t0, 1
+   lb $t7, ($t0)
+   beq $t7, $t8, findAmpersand
+   
+   gotonextAmpersand:
+   addi $t0, $t0, 1      
+   j nextAmpersand
+   
+   closeFile
+   
+      generateUserNumber:
       .data
-      buffer:  .space 1028
-
-      removeNewline:
-	   lb $t1, 0($t0)
-	   beq $t1, 0, storeUserData
-	   li $t2, 10
-	   beq $t1, $t2, setZero
-	   addi $t0, $t0, 1
-	   j removeNewline
-
-      setZero:
-	      sb $zero, 0($t0)
-
-storeUserData:
-
+      userNumberValue:	.word 1
+      
       .text
+      lw $t5, userNumberValue
+      add $t5, $t5, $t9
+      sw $t5, userNumberValue
+      
+      # Generate account number (keep user number separate)
+      move $t6, $t5
+      addi $t6, $t6, 1000 
+      sw $t6, accountNumberValue
+        
+      #Append user data to User_Data.txt
+      appendSignUpData:
+      .data
+      ampersandLabel:	.asciiz "\n&&"
+      userNumberLabel: .asciiz "\nUser No. "
+      firstNameLabel: .asciiz "\nFirst Name: "
+      lastNameLabel: .asciiz "\nLast Name: "
+      usernameLabel: .asciiz "\nUsername: "
+      passwordLabel: .asciiz "\nPassword: "
+      
+      carrotLabel:	.asciiz "\n^^"
+      accountNumberLabel:	.asciiz "\nAccount No. "
+      balanceLabel:	.asciiz "\nBalance: "
+      frozenLabel:	.asciiz "\nAccount Frozen: "
+      frozenN:	.asciiz "\nN"
+      frozenY:	.asciiz "\nY"
+      accessLabel:	.asciiz "\nAccess: "
+      accountNumberValue:	.word 1
+      balanceValue:	.word 0
+      intBuffer:	.space 6
+      
+      .text
+      #convert to String
       openFile(9)
+      
+      writeStringToFile(ampersandLabel)
+      
+      writeStringToFile(userNumberLabel)
+      writeIntToFile(userNumberValue, intBuffer)
 
-	   #Load values
-	   la $t0, buffer
-	   li $t1, 0
-	
-         loop:
-	      lb $t2, 0($t0)
-	      beq $t2, $zero, appendToFile
-	      addi $t0, $t0, 1
-	      addi $t1, $t1, 1
-         j loop	
-
-         appendToFile:
-	      #Append to the end of the file
-	      appendFile($t0, $t1)
-
+      writeStringToFile(firstNameLabel)
+      writeStringToFile(firstName)
+      
+      writeStringToFile(lastNameLabel)
+      writeStringToFile(lastName)
+      
+      writeStringToFile(usernameLabel)
+      writeStringToFile(username)
+            
+      writeStringToFile(passwordLabel)
+      writeStringToFile(password)
+      
+      writeStringToFile(carrotLabel)
+      
+      writeStringToFile(accountNumberLabel)
+      writeIntToFile(accountNumberValue, intBuffer)
+      
+      writeStringToFile(balanceLabel)
+      writeIntToFile(balanceValue, intBuffer)
+      
+      writeStringToFile(frozenLabel)
+      writeStringToFile(frozenN)
+      
+      writeStringToFile(accessLabel)
+      writeIntToFile(userNumberValue, intBuffer)
+      
       closeFile	
-.end_macro
-
 .end_macro
 
 .macro loginMenu(%user_number) #memory address for a user to login. Zero if failed or invalid.
@@ -119,4 +244,5 @@ storeUserData:
    readStr(password, 26)
    
 .end_macro
+
 
