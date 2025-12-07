@@ -51,7 +51,6 @@
    syscall
 .end_macro
 
-.macro openFile(%flag, %fd)
 #File operation macros
 # openFile: Open file and save descriptor to $s0
 # %flag - integer value (0=read, 1=write, 9=append)
@@ -61,6 +60,24 @@
    li $a1, %flag
    li $a2, 0
    syscall
+.end_macro
+
+#File operation macros
+# openFile: Open file and save descriptor to $s0
+# %flag - integer value (0=read, 1=write, 9=append)
+.macro openFileDebug(%flag, %fd)
+.data
+   fdOutput: .asciiz "File descriptor: "
+   linebreak: .asciiz "\n"
+.text
+   li $v0, 13
+   la $a0, fileName
+   li $a1, %flag
+   li $a2, 0
+   syscall
+   printStr(fdOutput)
+   printInt($v0, 0)
+   printStr(linebreak)
    sw $v0, %fd #Save file descriptor
 .end_macro
 
@@ -68,7 +85,7 @@
 # readFile: Read data from open file
 # %buffer - memory location to store file content
 # %size - integer value, maximum bytes to read
-# %reg - register to store number of bytes actually read
+# %bytesRead - register to store number of bytes actually read
 .macro readFile(%buffer, %size, %bytesRead, %fd) 
    li $v0, 14
    lw $a0, %fd
@@ -81,12 +98,12 @@
 
 # appendFile: Write data to open file
 # %buffer - memory location of data to write
-# %reg - register containing number of bytes to write
-.macro appendFile(%buffer, %reg, %fd)
+# %bytesToWrite - register containing number of bytes to write
+.macro appendFile(%buffer, %bytesToWrite, %fd)
    li $v0, 15
    lw $a0, %fd
    la $a1, %buffer
-   move $a2, %reg
+   move $a2, %bytesToWrite
    syscall
 .end_macro
 

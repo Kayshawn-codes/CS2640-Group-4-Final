@@ -27,7 +27,7 @@
    
    errorCheck: #Ensure valid input
    ble $v0, 0, error
-   bge $v0, 4, error
+   bge $v0, 5, error
    j exit #If input is valid continue to exit
    error:
    printStr(inputErr)

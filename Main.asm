@@ -13,6 +13,7 @@
 fileName:   .asciiz "User_Data.txt"
 buffer: .space 50000
 loginFail:  .asciiz "User and Password not found."
+.align 2
 signInResponse:   .space 4
 userNumber: .space 4
 
@@ -23,6 +24,8 @@ main:
    beq $s0, 1, login
    beq $s0, 2, signUp
    beq $s0, 3, exit
+   beq $s0, 4, debug
+   j main
 signUp:
    signUpMenu
    j main
@@ -40,3 +43,40 @@ exit:
    #Exiting the program
    li $v0, 10
    syscall
+
+.data
+   debugIntro: .asciiz "----------Debug Menu----------\n"
+   debugMenu: .asciiz "1. Attempt to open the file\n2. Attempt to write to the file.\n3. Attempt to close the file\n4. Return\n"
+   openOutput: .asciiz "Attempted to open the file.\n"
+   writeOutput: .asciiz "Attempted to write\n"
+   writeString: .asciiz "Append data\n"
+   closeOutput: .asciiz "Attempted to close the file.\n"
+   input: .asciiz "Select an option: "
+   .align 2
+   desc: .word
+.text
+debug:
+   printStr(debugIntro)
+   printStr(debugMenu)
+   printStr(input)
+   
+   li $v0, 5
+   syscall
+   beq $v0, 1, open
+   beq $v0, 2, write
+   beq $v0, 3, close
+   beq $v0, 4, main
+open:
+   openFileDebug(0, desc)
+   printStr(openOutput)
+   j debug
+write:
+   writeStringToFile(writeString, desc)
+   printStr(writeOutput)
+   j debug
+close:
+   closeFile(desc)
+   printStr(closeOutput)
+   j debug
+   
+   
