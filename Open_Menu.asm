@@ -36,6 +36,7 @@
    sb $v0, %response
 .end_macro
 
+signUpMenuLoop:
 .macro signUpMenu
    .data
    userNamePrompt: .asciiz "Please enter a desired username: \n"
@@ -76,13 +77,17 @@
    .text
    la $t0, buffer
    lb $t1, ($t0)
-   li $t9, 0		#ampersand counter
+   la $t2, ampersand
+   lb $t3, ($t2)
    la $t8, newline
+   lb $t5, ($t8)
+   li $t9, 0		#ampersand counter
+
 
    findAmpersand:
    bge $t0, $s1, generateUserNumber
    lb $t1, ($t0)
-   lb $t3, ampersand 
+   lb $t3, ($t2) 
    beq $t1, $t3, foundAmpersand     
    addi $t0, $t0, 1  
    j findAmpersand
@@ -96,7 +101,7 @@
    
    skipLinesLoop:
    lb $t4, ($t0)
-   lb $t5, newline 
+   lb $t5, ($t8)
    beq $t4, $t5, foundNewline  
    addi $t0, $t0, 1
    j skipLinesLoop
@@ -118,12 +123,13 @@
    
    compareUsername:
    la $t6, username
+
    lb $t7, ($t6)
    lb $t8, ($t0)
    
    #Check for end of input username end
    beq $t7, 0, usernameEnd
-   beq $t7, 10, usernameEnd
+   beq $t7, $t9, usernameEnd
    bne $t7, $t8, nextAmpersand
    
    addi $t6, $t6, 1
@@ -132,12 +138,12 @@
    
    usernameEnd:
    #Check for file username end
-   beq $t8, 10, duplicateUsernameFound  
+   beq $t8, $t9, duplicateUsernameFound  
    j nextAmpersand
    
    duplicateUsernameFound:
    printStr(duplicateUsername)
-   signUpMenu 
+   j signUpMenuLoop
    
    nextAmpersand: 
    lb $t7, ($t0)

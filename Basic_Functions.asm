@@ -2,7 +2,7 @@
 #Group 4: Kayshawn W., Jacob L., Jahnvi L., Samuel O.
 #12/07/25
 
-#Basic functions that will be used accross multiple files
+#Basic functions that will be used across multiple files
 
 .macro printStr(%str)
    li $v0, 4
@@ -19,11 +19,10 @@
 .end_macro
 
 .macro readStrW(%returnAddress, %size) #Read string but give a warning for string size:
-   .data
+.data
    part1: .asciiz "(Max characters: "
    part2: .asciiz ")\n"
-   
-   .text
+.text
    #Indicate the maximum characters the user can input
    printStr(part1)
    li $v0, 1
@@ -43,8 +42,8 @@
 .data
 spacer: .asciiz "----------------------------------------------------"
 linebreak: .asciiz "\n"
-fileName: .asciiz "User_Data.txt"
-buffer: .space 50000
+fileName2: .asciiz "User_Data.txt"
+buffer2: .space 50000
 
 .macro openFile(%flag)
    li $v0, 13
@@ -87,7 +86,7 @@ buffer: .space 50000
    beq $t3, $zero, appendToFile
    addi $t0, $t0, 1
    addi $t1, $t1, 1
-   j loop	
+   b loop	
 
    appendToFile:
    appendFile(%data, $t1)
@@ -109,7 +108,8 @@ buffer: .space 50000
    mfhi $t0
    
    beq $t2, 1, done
-   div $t2, 10
+   li $t5, 10
+   div $t2, $t5
    mflo $t2
    
    done:
