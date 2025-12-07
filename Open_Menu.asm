@@ -75,6 +75,7 @@ signUpMenuLoop:
    duplicateUsername: .asciiz "\nThis username is already in use. Please select an alternative option."
 
    .text
+   #Initialize file parsing variables
    la $t0, buffer
    lb $t1, ($t0)
    la $t2, ampersand
@@ -95,6 +96,7 @@ signUpMenuLoop:
    foundAmpersand:
    addi $t9, $t9, 1
    
+   #Skip 4 lines to reach username line
    skipLines:
    li $t3, 0 	#newline counter
    addi $t0, $t0, 1
@@ -115,12 +117,14 @@ signUpMenuLoop:
    
    j skipLines
    
+   #Navigate to start of username in file
    usernameLine:
    beq $t0, $t8, compareUsername
    addi $t0, $t0, 1
    
    j usernameLine
    
+   #Compare input username with file username character by character
    compareUsername:
    la $t6, username
 
@@ -145,6 +149,7 @@ signUpMenuLoop:
    printStr(duplicateUsername)
    j signUpMenuLoop
    
+   #Navigate to next user section in file
    nextAmpersand: 
    lb $t7, ($t0)
    beq $t7, 0, generateUserNumber
@@ -162,22 +167,23 @@ signUpMenuLoop:
    
    closeFile
    
-      generateUserNumber:
+   #Generate unique user and account numbers
+   generateUserNumber:
       .data
       userNumberValue:	.word 1
       
       .text
       lw $t5, userNumberValue
-      add $t5, $t5, $t9
-      sw $t5, userNumberValue
+      add $t5, $t5, $t9                   # Add existing user count
+      sw $t5, userNumberValue             # Store new user number
       
       # Generate account number (keep user number separate)
       move $t6, $t5
-      addi $t6, $t6, 1000 
+      addi $t6, $t6, 1000
       sw $t6, accountNumberValue
         
-      #Append user data to User_Data.txt
-      appendSignUpData:
+   #Write complete user profile to file
+   appendSignUpData:
       .data
       ampersandLabel:	.asciiz "\n&&"
       userNumberLabel: .asciiz "\nUser No. "
@@ -198,10 +204,10 @@ signUpMenuLoop:
       intBuffer:	.space 6
       
       .text
-      #convert to String
-      openFile(9)
+      #Write user data to file
+      openFile(9)                         # Open file for append
       
-      writeStringToFile(ampersandLabel)
+      writeStringToFile(ampersandLabel)   # Write user section marker
       
       writeStringToFile(userNumberLabel)
       writeIntToFile(userNumberValue, intBuffer)
@@ -218,7 +224,7 @@ signUpMenuLoop:
       writeStringToFile(passwordLabel)
       writeStringToFile(password)
       
-      writeStringToFile(carrotLabel)
+      writeStringToFile(carrotLabel)      # Write account section marker
       
       writeStringToFile(accountNumberLabel)
       writeIntToFile(accountNumberValue, intBuffer)
