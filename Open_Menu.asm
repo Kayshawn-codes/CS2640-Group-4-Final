@@ -36,9 +36,10 @@
    sb $v0, %response
 .end_macro
 
-signUpMenuLoop:
+
 .macro signUpMenu
    .data
+   fileDescriptor: .word 
    userNamePrompt: .asciiz "Please enter a desired username: \n"
    username: .space 26
    passwordPrompt: .asciiz "Please enter a desired password: \n"
@@ -49,6 +50,7 @@ signUpMenuLoop:
    lastName: .space 51
 
    .text 
+   menuPrompt:
    #Ask the user for each piece of information, then store it in the appropriate space
    printStr(userNamePrompt)
    readStr(username, 26)
@@ -66,8 +68,8 @@ signUpMenuLoop:
    #printStr(lastName)
 
    #Check Username Availability
-   openFile(0)
-   readFile(buffer, 50000, $s1)
+   openFile(0, fileDescriptor)
+   readFile(buffer, 50000, $s1, fileDescriptor)
 
    .data
    ampersand:  .byte 38
@@ -143,7 +145,7 @@ signUpMenuLoop:
    
    duplicateUsernameFound:
    printStr(duplicateUsername)
-   j signUpMenuLoop
+   j menuPrompt
    
    nextAmpersand: 
    lb $t7, ($t0)
@@ -160,7 +162,7 @@ signUpMenuLoop:
    addi $t0, $t0, 1      
    j nextAmpersand
    
-   closeFile
+   closeFile(fileDescriptor)
    
       generateUserNumber:
       .data
@@ -199,40 +201,40 @@ signUpMenuLoop:
       
       .text
       #convert to String
-      openFile(9)
+      openFile(9, fileDescriptor)
       
-      writeStringToFile(ampersandLabel)
+      writeStringToFile(ampersandLabel, fileDescriptor)
       
-      writeStringToFile(userNumberLabel)
-      writeIntToFile(userNumberValue, intBuffer)
+      writeStringToFile(userNumberLabel, fileDescriptor)
+      writeIntToFile(userNumberValue, intBuffer, fileDescriptor)
 
-      writeStringToFile(firstNameLabel)
-      writeStringToFile(firstName)
+      writeStringToFile(firstNameLabel, fileDescriptor)
+      writeStringToFile(firstName, fileDescriptor)
       
-      writeStringToFile(lastNameLabel)
-      writeStringToFile(lastName)
+      writeStringToFile(lastNameLabel, fileDescriptor)
+      writeStringToFile(lastName, fileDescriptor)
       
-      writeStringToFile(usernameLabel)
-      writeStringToFile(username)
+      writeStringToFile(usernameLabel, fileDescriptor)
+      writeStringToFile(username, fileDescriptor)
             
-      writeStringToFile(passwordLabel)
-      writeStringToFile(password)
+      writeStringToFile(passwordLabel, fileDescriptor)
+      writeStringToFile(password, fileDescriptor)
       
-      writeStringToFile(carrotLabel)
+      writeStringToFile(carrotLabel, fileDescriptor)
       
-      writeStringToFile(accountNumberLabel)
-      writeIntToFile(accountNumberValue, intBuffer)
+      writeStringToFile(accountNumberLabel, fileDescriptor)
+      writeIntToFile(accountNumberValue, intBuffer, fileDescriptor)
       
-      writeStringToFile(balanceLabel)
-      writeIntToFile(balanceValue, intBuffer)
+      writeStringToFile(balanceLabel, fileDescriptor)
+      writeIntToFile(balanceValue, intBuffer, fileDescriptor)
       
-      writeStringToFile(frozenLabel)
-      writeStringToFile(frozenN)
+      writeStringToFile(frozenLabel, fileDescriptor)
+      writeStringToFile(frozenN, fileDescriptor)
       
-      writeStringToFile(accessLabel)
-      writeIntToFile(userNumberValue, intBuffer)
+      writeStringToFile(accessLabel, fileDescriptor)
+      writeIntToFile(userNumberValue, intBuffer, fileDescriptor)
       
-      closeFile	
+      closeFile(fileDescriptor)
 .end_macro
 
 .macro loginMenu(%user_number) #memory address for a user to login. Zero if failed or invalid.

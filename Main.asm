@@ -19,7 +19,6 @@ userNumber: .space 4
 .text
 main:
    openMenu(signInResponse) #1. login, 2. sign up, 3. exit
-   main_menu(userNumber)
    lb $s0, signInResponse
    beq $s0, 1, login
    beq $s0, 2, signUp

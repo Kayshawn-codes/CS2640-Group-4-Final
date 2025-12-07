@@ -39,45 +39,41 @@
    addi $a0, $a0, %offset
    syscall
 .end_macro
-.data
-spacer: .asciiz "----------------------------------------------------"
-linebreak: .asciiz "\n"
-fileName2: .asciiz "User_Data.txt"
-buffer2: .space 50000
 
-.macro openFile(%flag)
+.macro openFile(%flag, %fd) #immediate value containing open flag, memorry address for the file descriptor
    li $v0, 13
    la $a0, fileName
    li $a1, %flag
    li $a2, 0
    syscall
-   move $s0, $v0 #Save file descriptor
+   sw $v0, %fd #Save file descriptor
 .end_macro
 
-.macro readFile(%buffer, %size, %reg)
+.macro readFile(%buffer, %size, %bytesRead, %fd) #memory address of buffer, immediate size value, \
+					   #register to hold num bytes read, memory address holding file descriptor
    li $v0, 14
-   move $a0, $s0
+   lw $a0, %fd
    la $a1, %buffer
    li $a2, %size
    syscall
-   move %reg, $v0
+   move %bytesRead, $v0
 .end_macro
 
-.macro appendFile(%buffer, %reg)
+.macro appendFile(%buffer, %reg, %fd)
    li $v0, 15
-   move $a0, $s0
+   lw $a0, %fd
    la $a1, %buffer
    move $a2, %reg
    syscall
 .end_macro
 
-.macro closeFile
+.macro closeFile(%fd)
    li $v0, 16
    move $a0, $s0
    syscall
 .end_macro
 
-.macro writeStringToFile(%data)
+.macro writeStringToFile(%data, %fd)
    la $t0, %data
    li $t1, 0
       
@@ -89,10 +85,10 @@ buffer2: .space 50000
    b loop	
 
    appendToFile:
-   appendFile(%data, $t1)
+   appendFile(%data, $t1, %fd)
 .end_macro
 
-.macro writeIntToFile(%intValue, %intBuffer)
+.macro writeIntToFile(%intValue, %intBuffer, %fd)
    lw $t0, %intValue
    la $t1, %intBuffer 
    
@@ -115,8 +111,13 @@ buffer2: .space 50000
    done:
    sb $zero, ($t1)
    
-   writeStringToFile(%intBuffer)
+   writeStringToFile(%intBuffer, %fd)
 .end_macro
 
-
+.data
+spacer: .asciiz "----------------------------------------------------"
+linebreak: .asciiz "\n"
+fileName2: .asciiz "User_Data.txt"
+.align 2
+buffer2: .space 50000
 
