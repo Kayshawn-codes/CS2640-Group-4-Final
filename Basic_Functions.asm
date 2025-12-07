@@ -169,7 +169,7 @@
 .data
 spacer: .asciiz "----------------------------------------------------"
 linebreak: .asciiz "\n"
-fileName2: .asciiz "User_Data.txt"
+fileName:   .asciiz "User_Data.txt"
 .align 2
 buffer2: .space 50000
 

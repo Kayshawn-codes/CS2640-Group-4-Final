@@ -10,7 +10,6 @@
 .include "User_Menu.asm"
 
 .data
-fileName:   .asciiz "User_Data.txt"
 buffer: .space 50000
 loginFail:  .asciiz "User and Password not found."
 .align 2

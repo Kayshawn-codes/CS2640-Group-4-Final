@@ -40,8 +40,7 @@
       changeAccess_:
          changeAccess(%userNumber)
       exit:
-      
-      
+       
 .end_macro
 
 .macro greeting(%name)

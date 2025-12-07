@@ -7,7 +7,7 @@
 .macro openMenu(%response)
    .data   
    header: .asciiz "-------------------------Main Menu-------------------------\n"
-   opening: .asciiz "Welcome to *Name Pending* banking app.\n"
+   opening: .asciiz "Welcome to the Cornerstone Financial banking app.\n"
    prompt: .asciiz "What would you like to do?\n"
    option1: .asciiz "1. Log in. \n"
    option2: .asciiz "2. Sign up. \n"
