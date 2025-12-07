@@ -60,6 +60,7 @@
    li $a1, %flag
    li $a2, 0
    syscall
+   sw $v0, %fd #Save file descriptor
 .end_macro
 
 #File operation macros
@@ -67,7 +68,7 @@
 # %flag - integer value (0=read, 1=write, 9=append)
 .macro openFileDebug(%flag, %fd)
 .data
-   fdOutput: .asciiz "File descriptor: "
+   fdOutput: .asciiz " File descriptor: "
    linebreak: .asciiz "\n"
 .text
    li $v0, 13
@@ -75,10 +76,13 @@
    li $a1, %flag
    li $a2, 0
    syscall
-   printStr(fdOutput)
-   printInt($v0, 0)
-   printStr(linebreak)
    sw $v0, %fd #Save file descriptor
+   
+   #Print out the file descriptor to check if it is valid
+   lw $t0, %fd 
+   printStr(fdOutput)
+   printInt($t0, 0)
+   printStr(linebreak)
 .end_macro
 
 
@@ -111,7 +115,7 @@
 # No parameters required
 .macro closeFile(%fd)
    li $v0, 16
-   move $a0, $s0
+   lw $a0, %fd
    syscall
 .end_macro
 

@@ -5,7 +5,7 @@
 #Functions for the main menu of the application
 
 .macro openMenu(%response)
-   .data
+   .data   
    header: .asciiz "-------------------------Main Menu-------------------------\n"
    opening: .asciiz "Welcome to *Name Pending* banking app.\n"
    prompt: .asciiz "What would you like to do?\n"
@@ -39,6 +39,11 @@
 
 .macro signUpMenu
    .data
+   debug: .asciiz "File descriptor: "
+   debug2: .asciiz "\n"
+   
+   
+   .align 2
    fileDescriptor: .word 
    userNamePrompt: .asciiz "Please enter a desired username: \n"
    username: .space 26
@@ -71,6 +76,12 @@
    openFile(0, fileDescriptor)
    readFile(buffer, 50000, $s1, fileDescriptor)
 
+   #Debug code to check if file descriptor makes sense
+   printStr(debug)
+   lw $t0, fileDescriptor
+   printInt($t0, 0)
+   printStr(debug2)
+   
    .data
    ampersand:  .byte 38
    newline: .byte 10
@@ -206,8 +217,16 @@
       intBuffer:	.space 6
       
       .text
+      
       #convert to String
       openFile(9, fileDescriptor)   # Open file for append
+      
+      #Debug code to check if file descriptor makes sense
+      printStr(debug)
+      lw $t0, fileDescriptor
+      printInt($t0, 0)
+      printStr(debug2)
+      
       
       writeStringToFile(ampersandLabel, fileDescriptor)  # Write user section marker
 
