@@ -244,12 +244,79 @@
       closeFile(fileDescriptor)
 .end_macro
 
+# Read user_data.txt 
+
+
+.macro readUserData(%givenUsername, %givenPass)
+	.data
+		# File path
+		filename: .asciiz "C:/Users/jacob/OneDrive/Desktop/2640 Stuff/2640 Final Project/Actual Final Project/CS2640-Group-4-Final/User_Data.txt"
+		buffer: .space 10000
+		newLineTest: .asciiz "\nNew line test!!!"
+	.text
+	
+
+	# Read the file
+	li $v0, 13
+	la $a0, filename
+	li $a1, 0
+	li $a2, 0
+	syscall
+	
+	# Saving the file descriptor
+	move $s0, $v0
+
+readline:
+	# read one line 
+	li $v0, 14
+	move $a0, $s0
+	la $a1, buffer
+	li $a2, 150
+	syscall
+		
+	move $t0, $v0
+	
+	
+	# Close file at this point if there is nothing to print
+	beq $t0, $zero, closeFile
+
+	printStr(newLineTest)	
+	# null-terminating the buffer
+	la $t1, buffer
+	add $t1, $t1, $t0
+	sb $zero, 0($t1)
+	
+	
+	# Print the given line
+	printStr(buffer)
+	
+	j readline
+	
+
+	# we're given the line
+	# then go from the ampersands, find FirstName
+	# compare username to the given username
+	# same with password,compare it to given password
+	# if not in first number of ampersands, move to next one
+	#  can't i just look for phrase first name?
+	
+
+closeFile:
+	li $v0, 16
+	move $a0, $s0
+	syscall
+
+
+exit:
+.end_macro
+
 .macro loginMenu(%user_number) #memory address for a user to login. Zero if failed or invalid.
    .data
    userPrompt: .asciiz "Please enter your username: "
    username: .space 26
    passPrompt: .asciiz "Please enter your password: "
    password: .space 26
+   usernameTest: .asciiz "\nUsername Test: "
    
    .text
    #Get the user's username and password
@@ -257,6 +324,9 @@
    readStr(username, 26)
    printStr(passPrompt)
    readStr(password, 26)
+   
+   readUserData(username, password)
+   
    
 .end_macro
 
