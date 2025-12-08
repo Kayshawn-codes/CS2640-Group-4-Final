@@ -14,25 +14,25 @@
    option3: .asciiz "3. Exit the application. \n"
    inputErr: .asciiz "Invalid input. Please try again.\n"
    .text
-   menu: #Provide the menu to the user
+   openMenu_menu: #Provide the menu to the user
    printStr(header)
    printStr(opening)
    printStr(prompt)
    printStr(option1)
    printStr(option2)
    printStr(option3)
-   recieve: #Take their response
+   openMenu_recieve: #Take their response
    li $v0, 5
    syscall
    
-   errorCheck: #Ensure valid input
-   ble $v0, 0, error
-   bge $v0, 5, error
-   j exit #If input is valid continue to exit
-   error:
+   openMenu_errorCheck: #Ensure valid input
+   ble $v0, 0, openMenu_error
+   bge $v0, 5, openMenu_error
+   j openMenu_exit #If input is valid continue to exit
+   openMenu_error:
    printStr(inputErr)
-   j menu
-   exit: #If input was valid store it in response and exit
+   j openMenu_menu
+   openMenu_exit: #If input was valid store it in response and exit
    sb $v0, %response
 .end_macro
 
@@ -55,7 +55,7 @@
    lastName: .space 51
 
    .text 
-   menuPrompt:
+   signUp_menuPrompt:
    #Ask the user for each piece of information, then store it in the appropriate space
    printStr(userNamePrompt)
    readStr(username, 26)
@@ -66,12 +66,6 @@
    printStr(lastNamePrompt)
    readStr(lastName, 51)
    
-   #Testing address placement
-   #printStr(username)
-   #printStr(password)
-   #printStr(firstName)
-   #printStr(lastName)
-
    #Check Username Availability
    openFile(0, fileDescriptor)
    readFile(buffer2, 50000, $s1, fileDescriptor)
@@ -175,7 +169,7 @@
    
    duplicateUsernameFound:
    printStr(duplicateUsername)
-   j menuPrompt
+    j signUp_menuPrompt
    
    #Navigate to next user section in file
    nextAmpersand: 

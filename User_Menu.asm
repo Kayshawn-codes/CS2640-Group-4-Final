@@ -14,7 +14,7 @@
       errMsg:  .asciiz "Invalid input. Please try again"
 
    .text
-   menu:
+   mainMenu_menu:
       greeting(firstName)
       printStr(accountsDisplay)
       showAccounts(%userNumber) #Will dynamically read file to determine the number of accounts
@@ -27,10 +27,10 @@
       beq $v0, 2, withdraw_
       beq $v0, 3, freeze_
       beq $v0, 4, changeAccess_
-      beq $v0, 5, exit
+      beq $v0, 5, mainMenu_exit
       inputErr:
          printStr(errMsg)
-         j main
+         j mainMenu_menu
       deposit_:
          deposit(%userNumber)
       withdraw_:
@@ -39,7 +39,7 @@
          freeze(%userNumber)
       changeAccess_:
          changeAccess(%userNumber)
-      exit:
+      mainMenu_exit:
        
 .end_macro
 
@@ -62,10 +62,9 @@
    hasMore: .word 1 #If hasMore is set to 0 then stop looping
    
    .text
-   main:
-      
+   showAccounts_start:
       li $t0, 1 #Loop counter, use to know which account you're searching for
-      loop:
+      showAccounts_loop:
          printStr(display1)
          printInt($t0, 0)
          printStr(display2)
@@ -74,7 +73,7 @@
          #findAccount(%userNumber, $t0, hasMore) #Should print out the account info and update hasMore
                                                 #if there are no more accounts
          lw $t2, hasMore
-         bne $t2, 0, loop 
+         bne $t2, 0, showAccounts_loop 
 .end_macro
 
 .macro deposit(%userNumber)
@@ -83,28 +82,28 @@
 .macro withdraw(%userNumber)
    .data
       prompt1: .asciiz "Withdraw from which account?(0 to exit)\n"
-      prompt2.1: .asciiz "How much to withdraw from account " 
-      prompt2.2: .asciiz "? \n"
+      prompt2_1: .asciiz "How much to withdraw from account " 
+      prompt2_2: .asciiz "? \n"
       feedback: .asciiz "Withdrawl successful."
       err1: .asciiz "Negative input for withdrawl is invalid.\n"
-      err2.1: .asciiz "Account " 
-      err2.2: .asciiz "not found."
+      err2_1: .asciiz "Account " 
+      err2_2: .asciiz "not found."
       err3: .asciiz "Insufficient funds.\n"
       
       accountSelection: .space 4
       ammountSelection: .space 4
       errorCode: .space 4
    .text
-   main:
+   withdraw_start:
       printStr(prompt1) # prompt the user for an account and take input
       li $v0, 5
       syscall
       beq $v0, $zero, end #exit if given zero
       sw $v0, accountSelection
       
-      printStr(prompt2.1) #Prompt the user for an amount of money and store the input
+      printStr(prompt2_1) #Prompt the user for an amount of money and store the input
       printInt($v0, 0)
-      printStr(prompt2.2)
+      printStr(prompt2_2)
       
       li $v0, 6 #Note this is a double value
       syscall
@@ -117,19 +116,19 @@
       j success_
       err1_:
          printStr(err1)
-         j main
+         j withdraw_start
       err2_:
-         printStr(err2.1)
+         printStr(err2_1)
          lw $t0, accountSelection
          printInt($t0, 0)
-         printStr(err2.2)
-         j main
+         printStr(err2_2)
+         j withdraw_start
       err3_:
          printStr(err3)
-         j main
+         j withdraw_start
       success_:
          printStr(feedback)
-   end:
+   withdraw_end:
 .end_macro
 
 .macro freeze(%userNumber)
