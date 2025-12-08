@@ -334,65 +334,91 @@
 
 .macro readUserData(%givenUsername, %givenPass)
 	.data
-		# File path
-		filename: .asciiz "C:/Users/jacob/OneDrive/Desktop/2640 Stuff/2640 Final Project/Actual Final Project/CS2640-Group-4-Final/User_Data.txt"
-		buffer: .space 10000
-		newLineTest: .asciiz "\nNew line test!!!"
-	.text
-	
+	.asciiz "C:/Users/jacob/OneDrive/Desktop/2640 Stuff/2640 Final Project/Actual Final Project/CS2640-Group-4-Final/User_Data.txt" 
+		buffer2: .space 50000 
+		ampersand: .byte 38 # '&' 
+		newline: .byte 10 # '\n' 
+		loginSuccess: .asciiz "\nSuccesfully Logged in!\n" 
+		loginFailure: .asciiz "\nInvalid Login! Please create an account. \n" 
 
-	# Read the file
-	li $v0, 13
-	la $a0, filename
-	li $a1, 0
-	li $a2, 0
-	syscall
+	.text # pointers & constants 
+	la $t0, buffer2 # $t0 = current scan pointer 
+	la $t2, ampersand 
+	lb $t2, 0($t2) # $t2 = '&' 
+	la $t3, newline 
+	lb $t3, 0($t3) # $t3 = '\n' 
 	
-	# Saving the file descriptor
-	move $s0, $v0
-
-readline:
-	# read one line 
-	li $v0, 14
-	move $a0, $s0
-	la $a1, buffer
-	li $a2, 150
-	syscall
-		
-	move $t0, $v0
+	searchNextUser: # scan until we hit '&' or reach end of buffer 
 	
+	scanToAmp: 
+	bge $t0, $s1, invalidLogin # out of data -> done 
+	lb $t1, 0($t0) # t1 = *t0 
+	beq $t1, $t2, atAmpersand # if '&' -> start of user section 
+	addi $t0, $t0, 1 
 	
-	# Close file at this point if there is nothing to print
-	beq $t0, $zero, closeFile
-
-	printStr(newLineTest)	
-	# null-terminating the buffer
-	la $t1, buffer
-	add $t1, $t1, $t0
-	sb $zero, 0($t1)
+	j scanToAmp 
 	
+	atAmpersand: # we are at first '&' of a block like "&&" 
+	# move to end of this line, then skip 3 more lines to username line 
+	# skip lines 
+	skipLine0: 
+	bge $t0, $s1, invalidLogin 
+	lb $t1, 0($t0) 
+	beq $t1, $t3, afterSkipLine0 # newline found 
+	addi $t0, $t0, 1 
+	j skipLine0 
 	
-	# Print the given line
-	printStr(buffer)
+	afterSkipLine0: 
+	addi $t0, $t0, 1 # move past newline 
+	li $t4, 3 # lines to skip 
+	skipMoreLines: 
+	beq $t4, $zero, atUsername # done skipping 
+	bge $t0, $s1, invalidLogin 
+	lb $t1, 0($t0) 
+	beq $t1, $t3, decLineCount 
 	
-	j readline
+	# newline 
+	addi $t0, $t0, 1 
+	j skipMoreLines 
 	
-
-	# we're given the line
-	# then go from the ampersands, find FirstName
-	# compare username to the given username
-	# same with password,compare it to given password
-	# if not in first number of ampersands, move to next one
-	#  can't i just look for phrase first name?
+	decLineCount: 
+	addi $t4, $t4, -1 
+	addi $t0, $t0, 1 
+	j skipMoreLines 
 	
-
-closeFile:
-	li $v0, 16
-	move $a0, $s0
-	syscall
-
-
-exit:
+	atUsername: # $t0 now points at start of username in file 
+	la $t6, %givenUsername # pointer to input username 
+	
+	compareUsername: 
+	bge $t0, $s1, invalidLogin # safety: out of data 
+	lb $t7, 0($t6) # ch from givenUsername 
+	lb $t8, 0($t0) # ch from file username # end of given username? (null or newline) 
+	
+	beq $t7, $zero, usernameEnd 
+	beq $t7, $t3, usernameEnd # mismatch -> not this user; go look for next block 
+	
+	bne $t7, $t8, searchNextUser # chars match → step both and keep going 
+	
+	addi $t6, $t6, 1 
+	addi $t0, $t0, 1 
+	j compareUsername 
+	
+	usernameEnd: # if file username also ends at newline -> exact match 
+	beq $t8, $t3, usernameFound # otherwise this was only a prefix match; continue search 
+	
+	j searchNextUser 
+	
+	usernameFound: 
+	j loginSuccessful
+	
+	invalidLogin: 
+	j exit 
+	
+	loginSuccessful:
+    	printStr(loginSuccess)
+    	j    exit   # make sure you actually leave the program    
+	
+	exit:
 .end_macro
 
 .macro loginMenu(%user_number) #memory address for a user to login. Zero if failed or invalid.
@@ -411,6 +437,8 @@ exit:
    readStr(password, 26)
    
    readUserData(username, password)
+   
+   
    
    
 .end_macro
