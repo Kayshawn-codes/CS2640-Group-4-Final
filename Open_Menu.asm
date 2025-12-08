@@ -276,8 +276,8 @@
       accountNumberLabel:	.asciiz "\nAccount No. "
       balanceLabel:	.asciiz "\nBalance: "
       frozenLabel:	.asciiz "\nAccount Frozen: "
-      frozenN:	.asciiz "N"
-      frozenY:	.asciiz "Y"
+      frozenN:	.asciiz "N (Y or N)"
+      frozenY:	.asciiz "Y (Y or N)"
       accessLabel:	.asciiz "\nAccess: "
       accountNumberValue:	.word 1
       balanceValue:	.word 0
