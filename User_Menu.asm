@@ -5,7 +5,7 @@
 .macro main_menu(%userNumber)
    .data 
       userName:   .space 26
-      passWord:   .space 12
+      password:   .space 26
       firstName:  .space 51
       lastName:   .space 51
       accountsDisplay:  .asciiz "---Open Accounts---"
@@ -40,8 +40,7 @@
       changeAccess_:
          changeAccess(%userNumber)
       exit:
-      
-      
+       
 .end_macro
 
 .macro greeting(%name)

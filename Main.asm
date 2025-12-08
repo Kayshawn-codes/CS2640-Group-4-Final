@@ -10,7 +10,6 @@
 .include "User_Menu.asm"
 
 .data
-fileName:   .asciiz "User_Data.txt"
 buffer: .space 50000
 loginFail:  .asciiz "User and Password not found."
 .align 2
@@ -46,30 +45,46 @@ exit:
 
 .data
    debugIntro: .asciiz "----------Debug Menu----------\n"
-   debugMenu: .asciiz "1. Attempt to open the file\n2. Attempt to write to the file.\n3. Attempt to close the file\n4. Return\n"
+   debugMenu1: .asciiz "1. Attempt to open the file for reading\n2. Attempt to open the file for writing\n3. Attempt to oppen for append\n4.Attempt to write to the file\n"
+   debugMenu2: .asciiz "5.Attempt to close the file\n6. Check file descriptor.\n7. Return\n"
    openOutput: .asciiz "Attempted to open the file.\n"
    writeOutput: .asciiz "Attempted to write\n"
    writeString: .asciiz "Append data\n"
    closeOutput: .asciiz "Attempted to close the file.\n"
+   descIs: .asciiz "File descriptor is: "
+   lbr: .asciiz "\n" 
    input: .asciiz "Select an option: "
    .align 2
    desc: .word
 .text
 debug:
    printStr(debugIntro)
-   printStr(debugMenu)
+   printStr(debugMenu1)
+   printStr(debugMenu2)
    printStr(input)
    
    li $v0, 5
    syscall
-   beq $v0, 1, open
-   beq $v0, 2, write
-   beq $v0, 3, close
-   beq $v0, 4, main
-open:
+   beq $v0, 1, openRead
+   beq $v0, 2, openWrite
+   beq $v0, 3, openAppend
+   beq $v0, 4, write
+   beq $v0, 5, close
+   beq $v0, 6, showDesc
+   beq $v0, 7, main
+openRead:
    openFileDebug(0, desc)
    printStr(openOutput)
    j debug
+openWrite:
+   openFileDebug(1, desc)
+   printStr(openOutput)
+   j debug
+openAppend:
+   openFileDebug(9, desc)
+   printStr(openOutput)
+   j debug
+
 write:
    writeStringToFile(writeString, desc)
    printStr(writeOutput)
@@ -77,6 +92,14 @@ write:
 close:
    closeFile(desc)
    printStr(closeOutput)
+   j debug
+showDesc:
+   printStr(descIs)
+   lw $t0, desc
+   li $v0, 1
+   move $a0, $t0
+   syscall
+   printStr(lbr)
    j debug
    
    
