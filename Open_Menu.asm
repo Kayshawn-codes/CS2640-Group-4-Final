@@ -328,7 +328,7 @@
 
 .macro readUserData(%givenUsername, %givenPass)
 	.data
-	.asciiz "C:/Users/jacob/OneDrive/Desktop/2640 Stuff/2640 Final Project/Actual Final Project/CS2640-Group-4-Final/User_Data.txt" 
+	filename2: .asciiz "User_Data.txt" 
 		buffer2: .space 50000 
 		ampersand: .byte 38 # '&' 
 		newline: .byte 10 # '\n' 
@@ -406,6 +406,7 @@
 	j loginSuccessful
 	
 	invalidLogin: 
+	printStr(loginFailure)
 	j exit 
 	
 	loginSuccessful:
