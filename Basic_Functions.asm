@@ -1,0 +1,195 @@
+#CS 2640.02 
+#Group 4: Kayshawn W., Jacob L., Jahnvi L., Samuel O.
+#12/07/25
+
+#Basic functions that will be used across multiple files
+
+#String I/O macros
+# printStr: Display string to console
+# %str - memory location of null-terminated string
+.macro printStr(%str)
+   li $v0, 4
+   la $a0, %str
+   syscall
+.end_macro
+
+# readStr: Read user input string
+# %returnAddress - memory location to store input string
+# %size - integer value, maximum characters to read
+.macro readStr(%returnAddress, %size)
+   li $v0, 8
+   la $a0, %returnAddress
+   li $a1, %size
+   syscall
+.end_macro
+
+# readStrW: Read user input with size warning display
+# %returnAddress - memory location to store input string
+# %size - integer value, maximum characters (displayed to user)
+.macro readStrW(%returnAddress, %size)
+.data
+   part1: .asciiz "(Max characters: "
+   part2: .asciiz ")\n"
+.text
+   printStr(part1)
+   li $v0, 1
+   li $a0, %size
+   syscall
+   printStr(part2)
+   
+   readStr(%returnAddress, %size)   
+.end_macro
+
+#Integer I/O macros
+# printInt: Display integer to console
+# %int - register containing integer value
+# %offset - immediate integer value to add to %int
+.macro printInt(%int, %offset)
+   li $v0, 1
+   move $a0, %int
+   addi $a0, $a0, %offset
+   syscall
+.end_macro
+
+#File operation macros
+# openFile: Open file and save descriptor to $s0
+# %flag - integer value (0=read, 1=write, 9=append)
+.macro openFile(%flag, %fd)
+   li $v0, 13
+   la $a0, fileName
+   li $a1, %flag
+   li $a2, 0
+   syscall
+   sw $v0, %fd #Save file descriptor
+.end_macro
+
+#File operation macros
+# openFile: Open file and save descriptor to $s0
+# %flag - integer value (0=read, 1=write, 9=append)
+.macro openFileDebug(%flag, %fd)
+.data
+   fdOutput: .asciiz " File descriptor: "
+   linebreak: .asciiz "\n"
+.text
+   li $v0, 13
+   la $a0, fileName
+   li $a1, %flag
+   li $a2, 0
+   syscall
+   sw $v0, %fd #Save file descriptor
+   
+   #Print out the file descriptor to check if it is valid
+   lw $t0, %fd 
+   printStr(fdOutput)
+   printInt($t0, 0)
+   printStr(linebreak)
+.end_macro
+
+
+# readFile: Read data from open file
+# %buffer - memory location to store file content
+# %size - integer value, maximum bytes to read
+# %bytesRead - register to store number of bytes actually read
+.macro readFile(%buffer, %size, %bytesRead, %fd) 
+   li $v0, 14
+   lw $a0, %fd
+   la $a1, %buffer
+   li $a2, %size
+   syscall
+   move %bytesRead, $v0
+.end_macro
+
+
+# appendFile: Write data to open file
+# %buffer - memory location of data to write
+# %bytesToWrite - register containing number of bytes to write
+.macro appendFile(%buffer, %bytesToWrite, %fd)
+   li $v0, 15
+   lw $a0, %fd
+   la $a1, %buffer
+   move $a2, %bytesToWrite
+   syscall
+.end_macro
+
+# closeFile: Close currently open file (uses $s0 descriptor)
+# No parameters required
+.macro closeFile(%fd)
+   li $v0, 16
+   lw $a0, %fd
+   syscall
+.end_macro
+
+#Data conversion and writing macros
+# writeStringToFile: Calculate string length and write to file
+# %data - memory location of null-terminated string
+.macro writeStringToFile(%data, %fd)
+   la $t0, %data
+   li $t1, 0
+      
+   loop:
+   lb $t3, 0($t0)
+   beq $t3, $zero, appendToFile
+   addi $t0, $t0, 1
+   addi $t1, $t1, 1
+   b loop	
+
+   appendToFile:
+   appendFile(%data, $t1, %fd)
+.end_macro
+
+# writeIntToFile: Convert integer to string and write to file
+# %intValue - memory location containing integer value
+# %intBuffer - memory location to store converted string (12+ bytes)
+.macro writeIntToFile(%intValue, %intBuffer, %fd)
+   lw $t0, %intValue              
+   la $t1, %intBuffer             
+
+   #Handle case zero
+   bnez $t0, convertValue
+   li $t2, 48
+   sb $t2, ($t1)
+   sb $zero, 1($t1)  #null terminator
+   j writeValue
+
+   convertValue:
+   move $t2, $t1
+   li $t3, 10   
+   
+   #Extract values (in reverse order)
+   valueLoop:
+   div $t0, $t3
+   mfhi $t4
+   mflo $t0
+   addi $t4, $t4, 48
+   sb $t4, ($t1)
+   addi $t1, $t1, 1
+   bnez $t0, valueLoop
+   
+   
+   #Null terminate
+   sb $zero, ($t1)
+   
+   #Reverse the values
+   subi $t1, $t1, 1
+
+   reverseLoop:
+   bge $t2, $t1, writeValue
+   lb $t3, ($t2)
+   lb $t4, ($t1)
+   sb $t4, ($t2)
+   sb $t3, ($t1)
+   addi $t2, $t2, 1
+   subi $t1, $t1, 1
+   j reverseLoop
+
+   writeValue:
+   writeStringToFile(%intBuffer, %fd)
+.end_macro
+
+.data
+spacer: .asciiz "----------------------------------------------------"
+linebreak: .asciiz "\n"
+fileName:   .asciiz "User_Data.txt"
+.align 2
+buffer2: .space 50000
+
