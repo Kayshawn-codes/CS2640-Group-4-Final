@@ -1,50 +1,89 @@
 Append data
-
 &&
-User No. 0
+User No. 1
 First Name: Luna
-
 Last Name: Lovegood
-
 Username: lovegood
-
 Password: pygmypuff
-
 ^^
-Account No. 0
+Account No. 1001
 Balance: 0
-Account Frozen: 
-N
+Frozen: N (Y or N)
 Access: 0
-&&
-User No. 0
+&& 
+User No. 2
 First Name: Rize
-
 Last Name: Kamishiro
-
 Username: kamishiro@cornerstone
-
 Password: dragon
-
 ^^
-Account No. 0
+Account No. 1002
 Balance: 0
-Account Frozen: 
-N
+Frozen: N (Y or N)
+Access: 0
+&& 
+User No. 3
+First Name: Su
+Last Name: Won
+Username: won@cornerstone
+Password: hayona
+^^
+Account No. 1003
+Balance: 0
+Frozen: N (Y or N)
 Access: 0
 &&
-User No. 0
-First Name: Su
-
-Last Name: Won
-
-Username: won@cornerstone
-
-Password: hayona
-
+User No. 4
+First Name: Katerina
+Last Name: Petrova
+Username: petrova@cornerstone
+Password: moonstone
 ^^
-Account No. 0
+Account No. 1004
 Balance: 0
-Account Frozen: 
-N
+Account Frozen: N
 Access: 0
+&&
+User No. 5
+First Name: Bruce
+Last Name: Wayne
+Username: wayne@cornstone
+Password: robin
+^^
+Account No. 1005
+Balance: 0
+Account Frozen: N
+Access: 0
+&&
+User No. 6
+First Name: Katy
+Last Name: Perry
+Username: perry@cornerstone
+Password: daisy11
+^^
+Account No. 1006
+Balance: 0
+Account Frozen: N
+Access: 1
+&&
+User No. 7
+First Name: Christina
+Last Name: Yang
+Username: yang@cornerstone
+Password: minerva
+^^
+Account No. 1007
+Balance: 0
+Account Frozen: N
+Access: 7
+&&
+User No. 8
+First Name: Morticia
+Last Name: Addams
+Username: addams@cornerstone
+Password: wednesday
+^^
+Account No. 1008
+Balance: 0
+Account Frozen: N
+Access: 8

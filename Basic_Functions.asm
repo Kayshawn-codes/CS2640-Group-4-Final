@@ -139,30 +139,50 @@
 
 # writeIntToFile: Convert integer to string and write to file
 # %intValue - memory location containing integer value
-# %intBuffer - memory location to store converted string (6+ bytes)
+# %intBuffer - memory location to store converted string (12+ bytes)
 .macro writeIntToFile(%intValue, %intBuffer, %fd)
-   lw $t0, %intValue
-   la $t1, %intBuffer 
+   lw $t0, %intValue              
+   la $t1, %intBuffer             
+
+   #Handle case zero
+   bnez $t0, convertValue
+   li $t2, 48
+   sb $t2, ($t1)
+   sb $zero, 1($t1)  #null terminator
+   j writeValue
+
+   convertValue:
+   move $t2, $t1
+   li $t3, 10   
    
-   li $t2, 100000
-   li $t3, 0
-   
-   conversion:
-   div $t0, $t2
-   mflo $t4
+   #Extract values (in reverse order)
+   valueLoop:
+   div $t0, $t3
+   mfhi $t4
+   mflo $t0
    addi $t4, $t4, 48
    sb $t4, ($t1)
    addi $t1, $t1, 1
-   mfhi $t0
+   bnez $t0, valueLoop
    
-   beq $t2, 1, done
-   li $t5, 10
-   div $t2, $t5
-   mflo $t2
    
-   done:
+   #Null terminate
    sb $zero, ($t1)
    
+   #Reverse the values
+   subi $t1, $t1, 1
+
+   reverseLoop:
+   bge $t2, $t1, writeValue
+   lb $t3, ($t2)
+   lb $t4, ($t1)
+   sb $t4, ($t2)
+   sb $t3, ($t1)
+   addi $t2, $t2, 1
+   subi $t1, $t1, 1
+   j reverseLoop
+
+   writeValue:
    writeStringToFile(%intBuffer, %fd)
 .end_macro
 

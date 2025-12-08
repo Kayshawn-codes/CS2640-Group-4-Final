@@ -104,6 +104,8 @@
    lb $s3, ($s2)
    li $t9, 0		#ampersand counter
 
+   #Find greatest existing user number for proper incrementing
+   jal findGreatestUserNumber
 
    findAmpersand:
    bge $t0, $s1, generateUserNumber
@@ -194,20 +196,70 @@
    addi $t0, $t0, 1      
    j nextAmpersand
 
+   findGreatestUserNumber:
+   li $t7, 0
+   la $t0, buffer2
+
+   searchForUserNumber:
+   bge $t0, $s1, endSearch
+
+   #String search: "User No. "
+   la $t1, userNumberLabel
+   move $t2, $t0
+   li $t3, 0
+
+   findMatchLoop:
+   lb $t4, ($t1)
+   beq $t4, $zero, foundUserNumber
+   lb $t5, ($t2)
+   bne $t4, $t5, noMatch
+   addi $t1, $t1, 1
+   addi $t2, $t2, 1
+   j findMatchLoop
+
+   noMatch:
+   addi $t0, $t0, 1
+   j searchForUserNumber
+
+   foundUserNumber:
+   move $t0, $t2
+   li $t7, 0
+
+   parseNumber:
+   lb $t8, ($t0)
+   blt $t8, 48, numberEnd
+   bgt $t8, 57, numberEnd
+   subi $t8, $t8, 48
+   mul $t7, $t7, 10
+   add $t7, $t7, $t8
+   addi $t0, $t0, 1
+
+   numberEnd:
+   #Update highest value if current is greater
+   ble $t7, $s7, continueSearch
+   move $s7, $t7
+
+   continueSearch:
+   j searchForUserNumber
+
+   endSearch:
+   jr $ra
+
    #Generate unique user and account numbers
    generateUserNumber:
    closeFile(fileDescriptor)
       .data
       userNumberValue:	.word 1
+      baseAccountNumber: .word 1000
       
       .text
-      lw $t5, userNumberValue
-      add $t5, $t5, $t9                   # Add existing user count
+      # Calculate next user number: highest found + 1
+      addi $t5, $s7, 1                    # $s7 contains highest user number found
       sw $t5, userNumberValue             # Store new user number
-      
-      # Generate account number (keep user number separate)
-      move $t6, $t5
-      addi $t6, $t6, 1000
+
+      # Generate account number: base + user number
+      lw $t6, baseAccountNumber
+      add $t6, $t6, $t5                   # Account = 1000 + user number
       sw $t6, accountNumberValue
         
    #Write complete user profile to file
@@ -216,16 +268,16 @@
       ampersandLabel:	.asciiz "\n&&"
       userNumberLabel: .asciiz "\nUser No. "
       firstNameLabel: .asciiz "\nFirst Name: "
-      lastNameLabel: .asciiz "\nLast Name: "
-      usernameLabel: .asciiz "\nUsername: "
-      passwordLabel: .asciiz "\nPassword: "
+      lastNameLabel: .asciiz "Last Name: "
+      usernameLabel: .asciiz "Username: "
+      passwordLabel: .asciiz "Password: "
       
-      carrotLabel:	.asciiz "\n^^"
+      carrotLabel:	.asciiz "^^"
       accountNumberLabel:	.asciiz "\nAccount No. "
       balanceLabel:	.asciiz "\nBalance: "
       frozenLabel:	.asciiz "\nAccount Frozen: "
-      frozenN:	.asciiz "\nN"
-      frozenY:	.asciiz "\nY"
+      frozenN:	.asciiz "N"
+      frozenY:	.asciiz "Y"
       accessLabel:	.asciiz "\nAccess: "
       accountNumberValue:	.word 1
       balanceValue:	.word 0
@@ -244,7 +296,6 @@
       
       
       writeStringToFile(ampersandLabel, fileDescriptor)  # Write user section marker
-
       
       writeStringToFile(userNumberLabel, fileDescriptor)
       writeIntToFile(userNumberValue, intBuffer, fileDescriptor)
