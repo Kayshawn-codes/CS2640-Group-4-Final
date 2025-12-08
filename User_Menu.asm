@@ -10,7 +10,7 @@
       lastName:   .space 51
       accountsDisplay:  .asciiz "---Open Accounts---"
       menuOptions1:  .asciiz "\n What would you like to do?\n"
-      menuOptions2:  .asciiz "1. Deposit\n2. Withdraw.\n3.Freeze and account.\n4.Change user access.\n5. Exit"
+      menuOptions2:  .asciiz "1. Deposit\n2. Withdraw.\n3. Exit"
       errMsg:  .asciiz "Invalid input. Please try again"
 
    .text
@@ -25,20 +25,21 @@
       syscall #Take the input and respond
       beq $v0, 1, deposit_
       beq $v0, 2, withdraw_
-      beq $v0, 3, freeze_
-      beq $v0, 4, changeAccess_
-      beq $v0, 5, mainMenu_exit
+      beq $v0, 3, mainMenu_exit
+      j inputErr  # Default case for invalid input
+      
       inputErr:
          printStr(errMsg)
          j mainMenu_menu
+         
       deposit_:
          deposit(%userNumber)
+         j mainMenu_menu  # Return to menu after deposit
+         
       withdraw_:
          withdraw(%userNumber)
-      freeze_:
-         freeze(%userNumber)
-      changeAccess_:
-         changeAccess(%userNumber)
+         j mainMenu_menu  # Return to menu after withdraw
+         
       mainMenu_exit:
        
 .end_macro
@@ -98,7 +99,7 @@
       printStr(prompt1) # prompt the user for an account and take input
       li $v0, 5
       syscall
-      beq $v0, $zero, end #exit if given zero
+      beq $v0, $zero, withdraw_end #exit if given zero
       sw $v0, accountSelection
       
       printStr(prompt2_1) #Prompt the user for an amount of money and store the input
@@ -129,11 +130,5 @@
       success_:
          printStr(feedback)
    withdraw_end:
-.end_macro
-
-.macro freeze(%userNumber)
-.end_macro
-
-.macro changeAccess(%userNumber)
 .end_macro
 

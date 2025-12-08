@@ -430,11 +430,7 @@
    printStr(passPrompt)
    readStr(password, 26)
    
-   readUserData(username, password)
-   
-   
-   
-   
+   readUserData(username, password)  
 .end_macro
 
 
