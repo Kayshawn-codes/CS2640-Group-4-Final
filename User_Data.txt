@@ -9,7 +9,7 @@ Password: pygmypuff
 Account No. 1001
 Balance: 0
 Frozen: N (Y or N)
-Access: 0
+Access: 1
 && 
 User No. 2
 First Name: Rize
@@ -20,7 +20,7 @@ Password: dragon
 Account No. 1002
 Balance: 0
 Frozen: N (Y or N)
-Access: 0
+Access: 2
 && 
 User No. 3
 First Name: Su
@@ -31,7 +31,7 @@ Password: hayona
 Account No. 1003
 Balance: 0
 Frozen: N (Y or N)
-Access: 0
+Access: 3
 &&
 User No. 4
 First Name: Katerina
@@ -42,7 +42,7 @@ Password: moonstone
 Account No. 1004
 Balance: 0
 Account Frozen: N
-Access: 0
+Access: 4
 &&
 User No. 5
 First Name: Bruce
@@ -53,7 +53,7 @@ Password: robin
 Account No. 1005
 Balance: 0
 Account Frozen: N
-Access: 0
+Access: 5
 &&
 User No. 6
 First Name: Katy
@@ -64,7 +64,7 @@ Password: daisy11
 Account No. 1006
 Balance: 0
 Account Frozen: N
-Access: 1
+Access: 6
 &&
 User No. 7
 First Name: Christina

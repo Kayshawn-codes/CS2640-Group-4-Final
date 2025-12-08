@@ -6,7 +6,7 @@
 #Users can sign up as well as log in to accounts. Additonal features include freezing
 #accounts and transfering/sharing access.
 .include "Basic_Functions.asm"
-.include "Open_menu.asm"
+.include "Open_Menu.asm"
 .include "User_Menu.asm"
 
 .data
