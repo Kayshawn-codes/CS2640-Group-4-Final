@@ -270,8 +270,8 @@
       accountNumberLabel:	.asciiz "\nAccount No. "
       balanceLabel:	.asciiz "\nBalance: "
       frozenLabel:	.asciiz "\nAccount Frozen: "
-      frozenN:	.asciiz "N"
-      frozenY:	.asciiz "Y"
+      frozenN:	.asciiz "N (Y or N)"
+      frozenY:	.asciiz "Y (Y or N)"
       accessLabel:	.asciiz "\nAccess: "
       accountNumberValue:	.word 1
       balanceValue:	.word 0
@@ -323,12 +323,105 @@
       closeFile(fileDescriptor)
 .end_macro
 
+# Read user_data.txt 
+
+
+.macro readUserData(%givenUsername, %givenPass)
+	.data
+	.asciiz "C:/Users/jacob/OneDrive/Desktop/2640 Stuff/2640 Final Project/Actual Final Project/CS2640-Group-4-Final/User_Data.txt" 
+		buffer2: .space 50000 
+		ampersand: .byte 38 # '&' 
+		newline: .byte 10 # '\n' 
+		loginSuccess: .asciiz "\nSuccesfully Logged in!\n" 
+		loginFailure: .asciiz "\nInvalid Login! Please create an account. \n" 
+
+	.text # pointers & constants 
+	la $t0, buffer2 # $t0 = current scan pointer 
+	la $t2, ampersand 
+	lb $t2, 0($t2) # $t2 = '&' 
+	la $t3, newline 
+	lb $t3, 0($t3) # $t3 = '\n' 
+	
+	searchNextUser: # scan until we hit '&' or reach end of buffer 
+	
+	scanToAmp: 
+	bge $t0, $s1, invalidLogin # out of data -> done 
+	lb $t1, 0($t0) # t1 = *t0 
+	beq $t1, $t2, atAmpersand # if '&' -> start of user section 
+	addi $t0, $t0, 1 
+	
+	j scanToAmp 
+	
+	atAmpersand: # we are at first '&' of a block like "&&" 
+	# move to end of this line, then skip 3 more lines to username line 
+	# skip lines 
+	skipLine0: 
+	bge $t0, $s1, invalidLogin 
+	lb $t1, 0($t0) 
+	beq $t1, $t3, afterSkipLine0 # newline found 
+	addi $t0, $t0, 1 
+	j skipLine0 
+	
+	afterSkipLine0: 
+	addi $t0, $t0, 1 # move past newline 
+	li $t4, 3 # lines to skip 
+	skipMoreLines: 
+	beq $t4, $zero, atUsername # done skipping 
+	bge $t0, $s1, invalidLogin 
+	lb $t1, 0($t0) 
+	beq $t1, $t3, decLineCount 
+	
+	# newline 
+	addi $t0, $t0, 1 
+	j skipMoreLines 
+	
+	decLineCount: 
+	addi $t4, $t4, -1 
+	addi $t0, $t0, 1 
+	j skipMoreLines 
+	
+	atUsername: # $t0 now points at start of username in file 
+	la $t6, %givenUsername # pointer to input username 
+	
+	compareUsername: 
+	bge $t0, $s1, invalidLogin # safety: out of data 
+	lb $t7, 0($t6) # ch from givenUsername 
+	lb $t8, 0($t0) # ch from file username # end of given username? (null or newline) 
+	
+	beq $t7, $zero, usernameEnd 
+	beq $t7, $t3, usernameEnd # mismatch -> not this user; go look for next block 
+	
+	bne $t7, $t8, searchNextUser # chars match → step both and keep going 
+	
+	addi $t6, $t6, 1 
+	addi $t0, $t0, 1 
+	j compareUsername 
+	
+	usernameEnd: # if file username also ends at newline -> exact match 
+	beq $t8, $t3, usernameFound # otherwise this was only a prefix match; continue search 
+	
+	j searchNextUser 
+	
+	usernameFound: 
+	j loginSuccessful
+	
+	invalidLogin: 
+	j exit 
+	
+	loginSuccessful:
+    	printStr(loginSuccess)
+    	j    exit   # make sure you actually leave the program    
+	
+	exit:
+.end_macro
+
 .macro loginMenu(%user_number) #memory address for a user to login. Zero if failed or invalid.
    .data
    userPrompt: .asciiz "Please enter your username: "
    username: .space 26
    passPrompt: .asciiz "Please enter your password: "
    password: .space 26
+   usernameTest: .asciiz "\nUsername Test: "
    
    .text
    #Get the user's username and password
@@ -336,6 +429,11 @@
    readStr(username, 26)
    printStr(passPrompt)
    readStr(password, 26)
+   
+   readUserData(username, password)
+   
+   
+   
    
 .end_macro
 

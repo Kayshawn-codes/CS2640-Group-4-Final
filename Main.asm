@@ -32,8 +32,7 @@ login:
    loginMenu(userNumber)
    lb $s0, userNumber
    bgt $s0, $zero, user_menu
-   loginFailure:
-   printStr(loginFail) 
+   
    j main
 user_menu: #If user successfully logs in 
    main_menu(userNumber)

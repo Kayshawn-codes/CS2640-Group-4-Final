@@ -85,7 +85,6 @@
    printStr(linebreak)
 .end_macro
 
-
 # readFile: Read data from open file
 # %buffer - memory location to store file content
 # %size - integer value, maximum bytes to read
